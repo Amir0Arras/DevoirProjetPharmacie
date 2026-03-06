@@ -2,6 +2,10 @@ package pharmacie.entity;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+
+import pharmacie.entity.Fournisseur;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -34,5 +38,16 @@ public class Categorie {
 	// pour éviter la boucle infinie si on convertit la catégorie en JSON
 	@JsonIgnoreProperties({"categorie", "lignes"})
 	private List<Medicament> medicaments = new LinkedList<>();
+
+	/*
+	 * Relation plusieurs-à-plusieurs avec les fournisseurs. Un fournisseur peut
+	 * proposer plusieurs catégories et une catégorie peut être fournie par
+	 * plusieurs fournisseurs. La jointure est stockée dans la table
+	 * FOURNISSEUR_CATEGORIE.
+	 */
+	@ToString.Exclude
+	@ManyToMany(mappedBy = "categories")
+	@JsonIgnoreProperties("categories")
+	private java.util.Set<Fournisseur> fournisseurs = new java.util.HashSet<>();
 
 }

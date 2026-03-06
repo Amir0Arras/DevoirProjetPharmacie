@@ -10,6 +10,18 @@ INSERT INTO Categorie(code, libelle, description) VALUES
 INSERT INTO Categorie(code, libelle, description) VALUES
     ( 99, '0prod', 'Cette catégorie n''a pas de produit');
 
+-- Fournisseurs de test
+INSERT INTO FOURNISSEUR (ID, NOM, EMAIL) VALUES
+    (100, 'Test Fournisseur A', 'testA@example.com'),
+    (101, 'Test Fournisseur B', 'testB@example.com'),
+    (102, 'Test Fournisseur C', 'testC@example.com'),
+    (103, 'Test Fournisseur D', 'testD@example.com');
+
+-- Relation catégorie-fournisseur pour les tests
+INSERT INTO FOURNISSEUR_CATEGORIE (FOURNISSEUR_ID, CATEGORIE_CODE) VALUES
+    (100,98),(101,98),
+    (102,99),(103,99);
+
 INSERT INTO Medicament(reference, nom, categorie_code, quantite_par_unite, prix_unitaire, unites_en_stock, unites_commandees, niveau_de_reappro, indisponible ) VALUES
     ( 93, 'Medicament 93, pas en commande, disponible',   98, '1 boîte', 10.00, 100, 0, 10, FALSE),
     ( 94, 'Medicament 94, pas en commande, disponible',   98, '1 boîte', 10.00, 100, 0, 10, FALSE),

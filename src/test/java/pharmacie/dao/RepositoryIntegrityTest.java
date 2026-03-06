@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import pharmacie.entity.Categorie;
 import pharmacie.entity.Commande;
 import pharmacie.entity.Dispensaire;
+import pharmacie.entity.Fournisseur;
 import pharmacie.entity.Ligne;
 import pharmacie.entity.Medicament;
 /**
@@ -27,6 +29,8 @@ class RepositoryIntegrityTest {
 
     @Autowired
     private CategorieRepository categorieRepository;
+    @Autowired
+    private FournisseurRepository fournisseurRepository;
     @Autowired
     private MedicamentRepository medicamentRepository;
     @Autowired
@@ -107,6 +111,45 @@ class RepositoryIntegrityTest {
 
         Optional<Commande> found = commandeRepository.findById(commande.getNumero());
         assertFalse(found.isPresent(), "Commande should be deleted when Dispensaire is deleted");
+    }
+
+    @Test
+    void unFournisseurSansNomOuEmailEstInterdit() {
+        Fournisseur f = new Fournisseur();
+        // aucun nom ni email
+        assertThrows(jakarta.validation.ConstraintViolationException.class, () -> {
+            fournisseurRepository.saveAndFlush(f);
+        });
+    }
+
+    @Test
+    void categorieADeuxFournisseursMinimum() {
+        // utilise les données de test (niveau basique)
+        Categorie c98 = categorieRepository.findById(98).orElseThrow();
+        assertTrue(c98.getFournisseurs().size() >= 2);
+        Categorie c99 = categorieRepository.findById(99).orElseThrow();
+        assertTrue(c99.getFournisseurs().size() >= 2);
+    }
+
+    @Test
+    void persisterCategorieEtFournisseurs() {
+        Categorie cat = new Categorie();
+        cat.setLibelle("Toy Category");
+
+        Fournisseur f1 = new Fournisseur();
+        f1.setNom("Alpha");
+        f1.setEmail("alpha@ex.com");
+        Fournisseur f2 = new Fournisseur();
+        f2.setNom("Beta");
+        f2.setEmail("beta@ex.com");
+
+        cat.getFournisseurs().add(f1);
+        cat.getFournisseurs().add(f2);
+        f1.getCategories().add(cat);
+        f2.getCategories().add(cat);
+
+        cat = categorieRepository.saveAndFlush(cat);
+        assertEquals(2, cat.getFournisseurs().size());
     }
 
     @Test

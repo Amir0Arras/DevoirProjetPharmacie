@@ -16,6 +16,26 @@ INSERT INTO CATEGORIE (CODE, LIBELLE, DESCRIPTION) VALUES
 (10, 'Médicaments Respiratoires', 'Médicaments pour les troubles respiratoires');
 ALTER TABLE Categorie ALTER COLUMN code RESTART WITH 11;
 
+-- Insertion des fournisseurs et des relations catégorie-fournisseur
+INSERT INTO FOURNISSEUR (ID, NOM, EMAIL) VALUES
+(1, 'PharmaPlus', 'contact@pharmaplus.com'),
+(2, 'MediGlobal', 'info@mediglobal.fr'),
+(3, 'SantéDistrib', 'sales@santedistrib.sn'),
+(4, 'BioFournisseur', 'support@biofournisseur.com');
+
+-- Chaque catégorie doit être fournie par au moins deux fournisseurs
+INSERT INTO FOURNISSEUR_CATEGORIE (FOURNISSEUR_ID, CATEGORIE_CODE) VALUES
+(1,1),(2,1),
+(1,2),(3,2),
+(2,3),(4,3),
+(1,4),(4,4),
+(2,5),(3,5),
+(3,6),(4,6),
+(1,7),(2,7),
+(1,8),(3,8),
+(2,9),(4,9),
+(3,10),(4,10);
+
 -- Catégorie 1: Antalgiques et Antipyrétiques
 INSERT INTO MEDICAMENT (NOM, CATEGORIE_CODE, QUANTITE_PAR_UNITE, PRIX_UNITAIRE, UNITES_EN_STOCK, UNITES_COMMANDEES, NIVEAU_DE_REAPPRO, INDISPONIBLE, imageURL) VALUES
 ('Paracétamol 500mg', 1, 'Boîte de 16 comprimés', 2.50, 500, 0, 50, false, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400'),

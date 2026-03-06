@@ -7,6 +7,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import pharmacie.entity.Fournisseur;
+
 @DataJpaTest
 public class IntegrityConstraintTest {
 
@@ -187,5 +193,47 @@ public class IntegrityConstraintTest {
         entityManager.clear();
 
         assertNull(entityManager.find(Ligne.class, ligneId), "Ligne should be deleted when removed from Commande's list (orphanRemoval)");
+    }
+
+    // ---- nouveaux tests pour gestion des fournisseurs ---------------------------------------------------
+
+    @Test
+    public void testCategorieFournisseurRelation() {
+        Categorie cat = new Categorie();
+        cat.setLibelle("CatSupTest");
+
+        Fournisseur f1 = new Fournisseur();
+        f1.setNom("Sup1");
+        f1.setEmail("sup1@example.com");
+
+        Fournisseur f2 = new Fournisseur();
+        f2.setNom("Sup2");
+        f2.setEmail("sup2@example.com");
+
+        cat.getFournisseurs().add(f1);
+        cat.getFournisseurs().add(f2);
+        f1.getCategories().add(cat);
+        f2.getCategories().add(cat);
+
+        cat = entityManager.persistAndFlush(cat);
+
+        assertNotNull(cat.getCode());
+        assertEquals(2, cat.getFournisseurs().size());
+        assertTrue(cat.getFournisseurs().stream()
+                .map(Fournisseur::getEmail)
+                .collect(Collectors.toList())
+                .containsAll(Arrays.asList("sup1@example.com","sup2@example.com")));
+    }
+
+    @Test
+    public void testInitialisationAvecDeuxFournisseursParCategorie() {
+        @SuppressWarnings("unchecked")
+        List<Categorie> cats = entityManager.getEntityManager()
+                .createQuery("select c from Categorie c")
+                .getResultList();
+        for (Categorie c : cats) {
+            assertTrue(c.getFournisseurs().size() >= 2,
+                    "La catégorie " + c.getLibelle() + " doit avoir au moins deux fournisseurs");
+        }
     }
 }
